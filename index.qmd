@@ -9,14 +9,14 @@ execute:
 --> 
 
 ```{r}
-library(tidycensus)
-library(tidyverse)
-options(tidyverse.progress_bar = FALSE)
-options(tidycensus.progress_bar = FALSE)
-Sys.setenv(VROOM_SHOW_PROGRESS = "false")
-options(cli.progress_show_after = Inf)
-options(tigris_use_cache = TRUE)
-options(tigris_progress = FALSE)
+# library(tidycensus)
+# library(tidyverse)
+# options(tidyverse.progress_bar = FALSE)
+# options(tidycensus.progress_bar = FALSE)
+# Sys.setenv(VROOM_SHOW_PROGRESS = "false")
+# options(cli.progress_show_after = Inf)
+# options(tigris_use_cache = TRUE)
+# options(tigris_progress = FALSE)
 ```
 
 ```{r}
@@ -27,21 +27,21 @@ options(tigris_progress = FALSE)
 # v <- load_variables(2022, "acs5", cache = TRUE)
 # View(v %>% filter(str_detect(name, "B15003")))
 
-edu_data <- get_acs(
-  geography = "tract",
-  variables = c(total = "B15003_001", bachelor_up = "B15003_022"),
-  state = "CA",
-  county = "Los Angeles",
-  year = 2022,
-  geometry = TRUE,
-  survey = "acs5"
-)
+# edu_data <- get_acs(
+  # geography = "tract",
+  # variables = c(total = "B15003_001", bachelor_up = "B15003_022"),
+  # state = "CA",
+  # county = "Los Angeles",
+  # year = 2022,
+  # geometry = TRUE,
+  # survey = "acs5"
+# )
 
 # Reshape and calculate percentage
-la_edu_percent <- edu_data %>%
-  select(GEOID, variable, estimate, geometry) %>%
-  pivot_wider(names_from = variable, values_from = estimate) %>%
-  mutate(percent_bachelor_or_higher = 100 * bachelor_up / total)
+# la_edu_percent <- edu_data %>%
+  # select(GEOID, variable, estimate, geometry) %>%
+  # pivot_wider(names_from = variable, values_from = estimate) %>%
+  # mutate(percent_bachelor_or_higher = 100 * bachelor_up / total)
 
 # View result
 #glimpse(la_edu_percent)
@@ -65,8 +65,10 @@ $ percent_bachelor_or_higher <dbl> 38.175778, 45.860927, 33.925787, 36.542497,â€
 # Load libraries
 library(leaflet)
 library(sf)
-library(dplyr)
+library(tidyverse)
 library(RColorBrewer)
+
+la_edu_percent <- read_rds("la_edu_percent.rds")
 
 # Assuming your data is already loaded as `la_edu`
 # and `geometry` is an sf column
