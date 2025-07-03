@@ -1,0 +1,126 @@
+---
+execute:
+  echo: false
+  message: false
+  warning: false
+---
+
+<!-- I am using tidycencus and R. Give me code to download info about the percentage of of people with bachelor degrees in census tracts in LA
+--> 
+
+```{r}
+library(tidycensus)
+library(tidyverse)
+options(tidyverse.progress_bar = FALSE)
+options(tidycensus.progress_bar = FALSE)
+Sys.setenv(VROOM_SHOW_PROGRESS = "false")
+options(cli.progress_show_after = Inf)
+options(tigris_use_cache = TRUE)
+options(tigris_progress = FALSE)
+```
+
+```{r}
+
+#| cache: TRUE
+#| message:
+# View educational attainment variables if needed
+# v <- load_variables(2022, "acs5", cache = TRUE)
+# View(v %>% filter(str_detect(name, "B15003")))
+
+edu_data <- get_acs(
+  geography = "tract",
+  variables = c(total = "B15003_001", bachelor_up = "B15003_022"),
+  state = "CA",
+  county = "Los Angeles",
+  year = 2022,
+  geometry = TRUE,
+  survey = "acs5"
+)
+
+# Reshape and calculate percentage
+la_edu_percent <- edu_data %>%
+  select(GEOID, variable, estimate, geometry) %>%
+  pivot_wider(names_from = variable, values_from = estimate) %>%
+  mutate(percent_bachelor_or_higher = 100 * bachelor_up / total)
+
+# View result
+#glimpse(la_edu_percent)
+
+```
+<!--
+here is my data make an interesting interactive plot using leaflet in R
+Los Angeles Education
+Rows: 2,498
+Columns: 5
+$ GEOID                      <chr> "06037670413", "06037650101", "06037620303"…
+$ geometry                   <MULTIPOLYGON [°]> MULTIPOLYGON (((-118.4037 3...…
+$ total                      <dbl> 3311, 4228, 3207, 3812, 3522, 3637, 2441, 2…
+$ bachelor_up                <dbl> 1264, 1939, 1088, 1393, 827, 815, 197, 647,…
+$ percent_bachelor_or_higher <dbl> 38.175778, 45.860927, 33.925787, 36.542497,…
+-->
+
+
+```{r}
+#| message: false
+# Load libraries
+library(leaflet)
+library(sf)
+library(dplyr)
+library(RColorBrewer)
+
+# Assuming your data is already loaded as `la_edu`
+# and `geometry` is an sf column
+# Make sure it's an sf object
+la_edu <- st_as_sf(la_edu_percent)
+
+# Create a color palette based on percent_bachelor_or_higher
+pal <- colorNumeric(
+  palette = "YlGnBu",
+  domain = la_edu$percent_bachelor_or_higher
+)
+
+# Create labels for tooltips
+labels <- sprintf(
+  "<strong>Tract GEOID:</strong> %s<br/>
+   <strong>Total Pop 25+:</strong> %s<br/>
+   <strong>With Bachelor's+:</strong> %s<br/>
+   <strong>%% Bachelor's or Higher:</strong> %.1f%%",
+  la_edu$GEOID,
+  la_edu$total,
+  la_edu$bachelor_up,
+  la_edu$percent_bachelor_or_higher
+) %>% lapply(htmltools::HTML)
+
+# Build leaflet map
+leaflet(la_edu) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addPolygons(
+    fillColor = ~pal(percent_bachelor_or_higher),
+    weight = 0.5,
+    opacity = 1,
+    color = "white",
+    dashArray = "3",
+    fillOpacity = 0.7,
+    highlightOptions = highlightOptions(
+      weight = 2,
+      color = "#666",
+      dashArray = "",
+      fillOpacity = 0.9,
+      bringToFront = TRUE),
+    label = labels,
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "13px",
+      direction = "auto")
+  ) %>%
+  addLegend(
+    pal = pal,
+    values = ~percent_bachelor_or_higher,
+    opacity = 0.7,
+    title = "% Bachelor's or Higher",
+    position = "bottomright"
+  )
+
+```
+
+This interactive map visualizes the percentage of adults aged 25 and over with a bachelor's degree or higher across census tracts in Los Angeles County. Using color gradients, it highlights spatial variation in educational attainment, with darker shades indicating higher percentages. Hovering over each tract reveals key details, including the total population, number with a bachelor's degree or more, and the exact percentage. This visualization allows for easy identification of geographic disparities in educational attainment and can support data-driven decisions in policy, planning, and community development.

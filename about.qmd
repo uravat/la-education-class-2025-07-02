@@ -1,0 +1,5 @@
+---
+title: "About"
+---
+
+This project was created during Kane's Data Science Bootcamp. I used AI tools 
