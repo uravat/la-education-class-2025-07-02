@@ -1,0 +1,16 @@
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "This project was created during Kane’s Data Science Bootcamp. I used AI tools"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Los Angeles Education",
+    "section": "",
+    "text": "This interactive map visualizes the percentage of adults aged 25 and over with a bachelor’s degree or higher across census tracts in Los Angeles County. Using color gradients, it highlights spatial variation in educational attainment, with darker shades indicating higher percentages. Hovering over each tract reveals key details, including the total population, number with a bachelor’s degree or more, and the exact percentage. This visualization allows for easy identification of geographic disparities in educational attainment and can support data-driven decisions in policy, planning, and community development."
+  }
+]
