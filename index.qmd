@@ -121,6 +121,21 @@ leaflet(la_edu) %>%
     opacity = 0.7,
     title = "% Bachelor's or Higher",
     position = "bottomright"
+  ) |>
+  # Add title as overlay control
+  addControl(
+    html = "<div style='text-align:center; font-size:18px; font-weight:bold;'>Bachelor's Degree Rates in Los Angeles County</div>",
+    position = "topright"
+  ) |>
+  # Add subtitle
+  addControl(
+    html = "<div style='text-align:center; font-size:14px;'>% of Adults Aged 25+ with at Least a Bachelor's Degree (ACS 2022)</div>",
+    position = "topright"
+  ) |>
+  # Add source
+  addControl(
+    html = "<div style='text-align:center; font-size:11px; color:gray;'>Source: U.S. Census Bureau, ACS 5-Year Estimates</div>",
+    position = "bottomleft"
   )
 
 ```
