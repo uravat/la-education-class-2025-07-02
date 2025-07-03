@@ -59,6 +59,35 @@ $ bachelor_up                <dbl> 1264, 1939, 1088, 1393, 827, 815, 197, 647,â€
 $ percent_bachelor_or_higher <dbl> 38.175778, 45.860927, 33.925787, 36.542497,â€¦
 -->
 
+```{r}
+library(tidyverse)
+# load the data from rds file 
+la_edu_percent <- read_rds("la_edu_percent.rds")
+```
+
+```{r}
+library(tidycensus)
+
+
+# Get tract names and county info for LA County
+tract_metadata <- get_acs(
+  geography = "tract",
+  variables = "B01001_001",  # total population
+  state = "CA",
+  county = "Los Angeles",
+  year = 2022,
+  geometry = FALSE
+) |>
+  select(GEOID, NAME)
+
+# Example NAME: "Census Tract 203.03, Los Angeles County, California"
+
+# Join with your data
+la_edu_percent <- la_edu_percent |>
+  left_join(tract_metadata, by = "GEOID")
+
+```
+
 
 ```{r}
 #| message: false
@@ -68,7 +97,7 @@ library(sf)
 library(tidyverse)
 library(RColorBrewer)
 
-la_edu_percent <- read_rds("la_edu_percent.rds")
+
 
 # Assuming your data is already loaded as `la_edu`
 # and `geometry` is an sf column
@@ -83,15 +112,16 @@ pal <- colorNumeric(
 
 # Create labels for tooltips
 labels <- sprintf(
-  "<strong>Tract GEOID:</strong> %s<br/>
+  "<strong>%s</strong><br/>
    <strong>Total Pop 25+:</strong> %s<br/>
    <strong>With Bachelor's+:</strong> %s<br/>
    <strong>%% Bachelor's or Higher:</strong> %.1f%%",
-  la_edu$GEOID,
+  la_edu$NAME,
   la_edu$total,
   la_edu$bachelor_up,
   la_edu$percent_bachelor_or_higher
 ) %>% lapply(htmltools::HTML)
+
 
 # Build leaflet map
 leaflet(la_edu) %>%
